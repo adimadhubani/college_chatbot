@@ -7,6 +7,8 @@ import { chunkText } from "@/lib/text";
 import { PineconeStore } from "@langchain/pinecone";
 import { index } from "@/lib/pinecone";
 import { embeddings } from "@/lib/embeddings";
+import { CrawlRequest } from "@/lib/types";
+import { ScrapedPage } from "@/lib/types";
 
 function normalizeUrl(base: string, href: string) {
   try {
@@ -26,13 +28,13 @@ async function scrapePage(url: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const { url, session } = await req.json();
+  const { url, session }: CrawlRequest = await req.json();
   if (!url) return NextResponse.json({ error: "Missing url" }, { status: 400 });
   const namespace = session || "default";
 
   const visited = new Set<string>();
   const queue: string[] = [url];
-  const results: any[] = [];
+  const results: ScrapedPage[] = [];
 
   const maxPages = 20; // limit crawling depth
   const baseHost = new URL(url).host;
